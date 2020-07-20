@@ -4,6 +4,9 @@ RUN pecl install apcu
 
 RUN apt-get update -y
 RUN apt-get install -y git-core \
+	pdo \
+	pdo_mysql \
+	mysqli \
 	curl \
 	build-essential \
 	openssl \
