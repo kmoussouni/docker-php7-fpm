@@ -3,17 +3,39 @@ FROM php:7.4-fpm
 RUN pecl install apcu
 
 RUN apt-get update -y
-RUN apt-get install -y git-core \
-	pdo \
-	pdo_mysql \
-	mysqli \
+RUN apt-get upgrade -y
+
+RUN apt-get install -y \
+	apt-transport-https \
 	curl \
 	build-essential \
-	openssl \
-	libssl-dev \
-	xz-utils \
+	ca-certificates \ 
+	git-core \
 	gnupg \
-	wget
+	libssl-dev \
+	lsb-release \
+	openssl \
+	wget \
+	xz-utils \
+	nano \
+	unzip
+
+#RUN add-apt-repository ppa:ondrej/php
+#RUN apt-get update -y
+
+RUN apt search php7
+
+#Now install the php7 package:
+
+#sudo apt install php7.0-mysql
+
+
+#############################################
+## php extensions
+#############################################
+COPY docker-php-ext-* docker-php-entrypoint /usr/bin/
+ENTRYPOINT ["docker-php-entrypoint"]
+RUN docker-php-ext-install pdo pdo_mysql mysqli
 
 #############################################
 ## node
