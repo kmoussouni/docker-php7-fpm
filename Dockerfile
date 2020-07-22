@@ -74,6 +74,6 @@ RUN wget --quiet https://github.com/wkhtmltopdf/wkhtmltopdf/releases/download/0.
 RUN adduser --home /home/dev dev
 RUN usermod -aG www-data dev
 
-RUN echo 'alias ll="ls -la' >> /home/dev/.profile
+RUN echo 'alias ll="ls -la"' >> /home/dev/.profile
 
 CMD ["php-fpm"]
