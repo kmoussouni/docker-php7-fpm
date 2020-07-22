@@ -12,16 +12,18 @@ RUN apt-get install -y \
 	ca-certificates \ 
 	git-core \
 	gnupg \
+	libzip-dev \
 	libssl-dev \
+	zlib1g-dev \
+	libpng-dev \
+	libjpeg-dev \
+	libfreetype6-dev \
 	lsb-release \
 	openssl \
 	wget \
 	xz-utils \
 	nano \
-	unzip
-
-#RUN add-apt-repository ppa:ondrej/php
-#RUN apt-get update -y
+	unzip 
 
 RUN apt search php7
 
@@ -29,13 +31,20 @@ RUN apt search php7
 
 #sudo apt install php7.0-mysql
 
-
 #############################################
 ## php extensions
 #############################################
 COPY docker-php-ext-* docker-php-entrypoint /usr/bin/
 ENTRYPOINT ["docker-php-entrypoint"]
-RUN docker-php-ext-install pdo pdo_mysql mysqli
+RUN docker-php-ext-install pdo pdo_mysql mysqli zip gd exif
+
+#############################################
+## composer
+#############################################
+RUN php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');"
+RUN php -r "if (hash_file('sha384', 'composer-setup.php') === 'e5325b19b381bfd88ce90a5ddb7823406b2a38cff6bb704b0acc289a09c8128d4a8ce2bbafcd1fcbdc38666422fe2806') { echo 'Installer verified'; } else { echo 'Installer corrupt'; unlink('composer-setup.php'); } echo PHP_EOL;"
+RUN php composer-setup.php
+RUN php -r "unlink('composer-setup.php');"
 
 #############################################
 ## node
@@ -45,14 +54,6 @@ RUN cd /opt \
 	&& DISTRO=linux-x64 \
 	&& wget https://nodejs.org/dist/v$VERSION/node-v$VERSION-$DISTRO.tar.xz \
 	&& tar -xf node-v$VERSION-$DISTRO.tar.xz 
-
-RUN php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');"
-RUN php -r "if (hash_file('sha384', 'composer-setup.php') === 'e5325b19b381bfd88ce90a5ddb7823406b2a38cff6bb704b0acc289a09c8128d4a8ce2bbafcd1fcbdc38666422fe2806') { echo 'Installer verified'; } else { echo 'Installer corrupt'; unlink('composer-setup.php'); } echo PHP_EOL;"
-RUN php composer-setup.php
-RUN php -r "unlink('composer-setup.php');"
-
-RUN adduser --home /home/dev dev
-RUN usermod -aG www-data dev
 
 #############################################
 ## yarn
@@ -70,7 +71,9 @@ RUN wget --quiet https://github.com/wkhtmltopdf/wkhtmltopdf/releases/download/0.
     cp wkhtmltox/bin/wk* /usr/local/bin/ && \
     rm -rf wkhtmltox
 
+RUN adduser --home /home/dev dev
+RUN usermod -aG www-data dev
 
-#WORKDIR /usr/src/app
+RUN echo 'alias ll="ls -la' >> /home/dev/.profile
 
-#RUN PATH=$PATH:/usr/src/apps/vendor/bin:bin
+CMD ["php-fpm"]
