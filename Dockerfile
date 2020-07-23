@@ -12,6 +12,7 @@ RUN apt-get install -y \
 	ca-certificates \ 
 	git-core \
 	gnupg \
+	libicu-dev \
 	libzip-dev \
 	libssl-dev \
 	zlib1g-dev \
@@ -36,7 +37,7 @@ RUN apt search php7
 #############################################
 COPY docker-php-ext-* docker-php-entrypoint /usr/bin/
 ENTRYPOINT ["docker-php-entrypoint"]
-RUN docker-php-ext-install pdo pdo_mysql mysqli zip gd exif
+RUN docker-php-ext-install pdo pdo_mysql mysqli zip gd exif intl
 
 #############################################
 ## composer
