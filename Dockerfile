@@ -19,6 +19,9 @@ RUN apt-get install -y \
 	libpng-dev \
 	libjpeg-dev \
 	libfreetype6-dev \
+    libjpeg62-turbo-dev \
+    libmcrypt-dev \
+    libwebp-dev \
 	lsb-release \
 	openssl \
 	wget \
@@ -37,6 +40,11 @@ RUN apt search php7
 #############################################
 COPY docker-php-ext-* docker-php-entrypoint /usr/bin/
 ENTRYPOINT ["docker-php-entrypoint"]
+RUN docker-php-ext-configure gd --enable-gd --with-freetype --with-jpeg --with-webp
+RUN docker-php-ext-configure pdo_mysql --with-pdo-mysql=mysqlnd
+RUN docker-php-ext-configure mysqli --with-mysqli=mysqlnd
+RUN docker-php-ext-configure intl
+RUN docker-php-ext-configure zip
 RUN docker-php-ext-install pdo pdo_mysql mysqli zip gd exif intl
 
 #############################################
@@ -46,6 +54,7 @@ RUN php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');"
 RUN php -r "if (hash_file('sha384', 'composer-setup.php') === 'e5325b19b381bfd88ce90a5ddb7823406b2a38cff6bb704b0acc289a09c8128d4a8ce2bbafcd1fcbdc38666422fe2806') { echo 'Installer verified'; } else { echo 'Installer corrupt'; unlink('composer-setup.php'); } echo PHP_EOL;"
 RUN php composer-setup.php
 RUN php -r "unlink('composer-setup.php');"
+RUN mv composer.phar /usr/local/bin/composer
 
 #############################################
 ## node
